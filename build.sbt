@@ -8,5 +8,5 @@ lazy val root = (project in file(".")).settings(
       version := "0.1.0-SNAPSHOT"
     )),
   name := "Hello",
-  libraryDependencies ++= Seq(scalaTest, scalaCheck).map(_ % Test)
+  libraryDependencies ++= (compileDep ::: testDep)
 )
