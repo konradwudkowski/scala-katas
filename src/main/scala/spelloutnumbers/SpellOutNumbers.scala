@@ -1,18 +1,53 @@
 package spelloutnumbers
 
 object SpellOutNumbers {
-  def print(d: Int): String =
+  def print(d: Long): String = {
+
+    val groupedByThreeDigits =
+      d.toString
+        .foldRight(List("")) {
+          case (char, acc) =>
+            if (acc.head.length < 3) {
+              s"$char${acc.head}" :: acc.tail
+            } else {
+              char.toString :: acc
+            }
+        }
+        .map(_.toLong)
+        .reverse
+
+    val labels           = List("", "thousand", "million", "billion")
+    val numbersAndLabels = groupedByThreeDigits.zip(labels)
+
+    def superfluousZero(n: Long, label: String) = {
+      val largerLabelExists = {
+        val currentLabelPosition = numbersAndLabels.map(_._2).indexOf(label)
+        val maxLabelPosition     = numbersAndLabels.size - 1
+        currentLabelPosition < maxLabelPosition
+      }
+      n == 0 && largerLabelExists
+    }
+
+    numbersAndLabels.foldLeft("") {
+      case (acc, (number, label)) =>
+        if (superfluousZero(number, label)) {
+          acc
+        } else {
+          List(upToThreeDigits(number), label, acc).filter(_.nonEmpty).mkString(" ")
+        }
+    }
+  }
+
+  private def upToThreeDigits(d: Long): String =
     if (d < 10) {
       singleDigit(d)
     } else if (d < 100) {
       tens(d)
-    } else if (d < 1000) {
-      hundreds(d)
     } else {
-      thousands(d)
+      hundreds(d)
     }
 
-  private def singleDigit(d: Int): String =
+  private def singleDigit(d: Long): String =
     d match {
       case 0 => "zero"
       case 1 => "one"
@@ -26,7 +61,7 @@ object SpellOutNumbers {
       case 9 => "nine"
     }
 
-  private def tens(d: Int): String =
+  private def tens(d: Long): String =
     if (d < 20) {
       teens(d)
     } else {
@@ -40,7 +75,7 @@ object SpellOutNumbers {
       }
     }
 
-  private def teens(d: Int): String =
+  private def teens(d: Long): String =
     d match {
       case 10 => "ten"
       case 11 => "eleven"
@@ -54,7 +89,7 @@ object SpellOutNumbers {
       case 19 => "nineteen"
     }
 
-  private def tensPrefix(tensDigit: Int): String =
+  private def tensPrefix(tensDigit: Long): String =
     tensDigit match {
       case 2 => "twenty"
       case 3 => "thirty"
@@ -66,27 +101,16 @@ object SpellOutNumbers {
       case 9 => "ninety"
     }
 
-  private def hundreds(d: Int): String = {
+  private def hundreds(d: Long): String = {
     val hundredsDigit = d / 100
     val tensNumber    = d % 100
 
     if (tensNumber == 0) {
       s"${singleDigit(hundredsDigit)} hundred"
+    } else if (tensNumber < 10) {
+      s"${singleDigit(hundredsDigit)} hundred ${singleDigit(tensNumber)}"
     } else {
-      s"${singleDigit(hundredsDigit)} hundred ${print(tensNumber)}"
-    }
-  }
-
-  private def thousands(d: Int): String = {
-    val thousandsNumber = d / 1000
-    val hundredsNumber  = d % 1000
-
-    if (thousandsNumber == 1) {
-      s"one thousand ${hundreds(hundredsNumber)}"
-    } else if (hundredsNumber == 0) {
-      s"${print(thousandsNumber)} thousands"
-    } else {
-      s"${print(thousandsNumber)} thousands ${print(hundredsNumber)}"
+      s"${singleDigit(hundredsDigit)} hundred ${tens(tensNumber)}"
     }
   }
 

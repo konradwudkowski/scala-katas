@@ -89,13 +89,44 @@ class SpellOutNumbersSpec extends WordSpec with Matchers {
     "work for thousands" in {
       val expectations =
         Map(
-          1000  -> "one thousand",
-          1001  -> "one thousand one",
-          2000  -> "two thousands",
-          2002  -> "two thousands two",
-          3019  -> "three thousands nineteen",
-          4040  -> "four thousands forty",
-          10451 -> "ten thousands 4 hundred fifty one"
+          1000   -> "one thousand",
+          1001   -> "one thousand one",
+          2000   -> "two thousand",
+          2002   -> "two thousand two",
+          3019   -> "three thousand nineteen",
+          4040   -> "four thousand forty",
+          10451  -> "ten thousand four hundred fifty one",
+          250000 -> "two hundred fifty thousand",
+          599017 -> "five hundred ninety nine thousand seventeen"
+        )
+
+      expectations.foreach {
+        case (d, expectedTextRepr) =>
+          SpellOutNumbers.print(d) shouldBe expectedTextRepr
+      }
+    }
+
+    "work for millions" in {
+      val expectations =
+        Map(
+          1000000  -> "one million",
+          2000005  -> "two million five",
+          15100020 -> "fifteen million one hundred thousand twenty",
+          99000000 -> "ninety nine million"
+        )
+
+      expectations.foreach {
+        case (d, expectedTextRepr) =>
+          SpellOutNumbers.print(d) shouldBe expectedTextRepr
+      }
+    }
+
+    "work for billions" in {
+      val expectations: Map[Long, String] =
+        Map(
+          1000000000L -> "one billion",
+          2000000005L -> "two billion five",
+          5015100020L -> "five billion fifteen million one hundred thousand twenty"
         )
 
       expectations.foreach {
